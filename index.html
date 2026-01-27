@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobir | Motion Experience</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@200;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #00f2fe;
+            --secondary: #7000ff;
+            --bg: #000;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+
+        body {
+            background: var(--bg);
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* --- HARAKATLANUVCHI ORQA FON --- */
+        .bg-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: linear-gradient(45deg, #050505, #0a0a0a, #001a1a);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .floating-circles div {
+            position: absolute;
+            width: 300px; height: 300px;
+            background: var(--secondary);
+            filter: blur(150px);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 20s infinite alternate;
+        }
+
+        @keyframes float {
+            0% { transform: translate(-20%, -20%) scale(1); }
+            100% { transform: translate(120%, 100%) scale(1.5); }
+        }
+
+        /* --- MAGIC CURSOR --- */
+        #cursor {
+            width: 25px; height: 25px;
+            background: var(--primary);
+            border-radius: 50%;
+            position: fixed; pointer-events: none;
+            z-index: 10000; mix-blend-mode: difference;
+            box-shadow: 0 0 20px var(--primary);
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* --- SIZ SO'RAGAN 2s PRELOADER --- */
+        #preloader {
+            position: fixed; inset: 0;
+            background: #000;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999;
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .loader-text {
+            font-family: 'Syncopate', sans-serif;
+            font-size: clamp(2rem, 10vw, 4rem);
+            letter-spacing: 15px;
+            background: linear-gradient(90deg, #000, #fff, #000);
+            background-size: 200%;
+            animation: shine 2s linear infinite;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @keyframes shine { to { background-position: 200% center; } }
+
+        /* --- ASOSIY UI VA ELEMENTLAR ANIMATSIYASI --- */
+        .wrapper {
+            height: 100vh; overflow-y: auto;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 80px 20px;
+            opacity: 0;
+        }
+
+        .wrapper.active { opacity: 1; }
+
+        /* Elementlar birin-ketin chiqishi (Reveal) */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px) scale(0.9);
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .wrapper.active .reveal {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Har bir element uchun delay */
+        .reveal:nth-child(1) { transition-delay: 0.2s; }
+        .reveal:nth-child(2) { transition-delay: 0.4s; }
+        .reveal:nth-child(3) { transition-delay: 0.6s; }
+        .reveal:nth-child(4) { transition-delay: 0.8s; }
+        .reveal:nth-child(5) { transition-delay: 1.0s; }
+        .reveal:nth-child(6) { transition-delay: 1.2s; }
+
+        .profile-img {
+            width: 140px; height: 140px;
+            border-radius: 40px;
+            border: 2px solid var(--primary);
+            padding: 8px;
+            background: rgba(255,255,255,0.05);
+            animation: pulseShadow 3s infinite alternate;
+        }
+
+        @keyframes pulseShadow {
+            from { box-shadow: 0 0 10px rgba(0, 242, 254, 0.1); }
+            to { box-shadow: 0 0 40px rgba(0, 242, 254, 0.4); }
+        }
+
+        .links-grid { width: 100%; max-width: 420px; display: grid; gap: 18px; margin-top: 40px; }
+
+        .elite-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 22px 28px;
+            border-radius: 25px;
+            display: flex; align-items: center;
+            text-decoration: none; color: #fff;
+            backdrop-filter: blur(15px);
+            transition: all 0.4s;
+            position: relative; overflow: hidden;
+        }
+
+        .elite-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            transform: scale(1.05) rotateX(5deg);
+        }
+
+        .elite-btn i { font-size: 1.6rem; margin-right: 20px; color: var(--primary); }
+        .elite-btn span { font-weight: 500; letter-spacing: 1px; }
+
+        footer { margin-top: 80px; padding-bottom: 40px; text-align: center; }
+        .shoh-tag {
+            font-size: 0.75rem; letter-spacing: 5px; color: rgba(255,255,255,0.4);
+            text-decoration: none; transition: 0.5s;
+        }
+        .shoh-tag strong { color: var(--primary); }
+        .shoh-tag:hover { color: #fff; letter-spacing: 8px; text-shadow: 0 0 10px var(--primary); }
+
+        @media (max-width: 480px) {
+            * { cursor: auto; }
+            #cursor { display: none; }
+            .loader-text { letter-spacing: 5px; font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="cursor"></div>
+    <div class="bg-canvas"></div>
+    <div class="floating-circles"><div></div></div>
+
+    <div id="preloader">
+        <div class="loader-text">SOBIR</div>
+    </div>
+
+    <div class="wrapper" id="mainUI">
+        <div class="reveal">
+            <img src="" alt="Sobir" class="profile-img">
+        </div>
+        
+        <h1 class="reveal" style="font-family: 'Syncopate'; margin-top: 25px; letter-spacing: 8px;">SOBIR</h1>
+        <p class="reveal" style="opacity: 0.5; letter-spacing: 3px; font-size: 0.85rem;">PREMIUM CONTENT</p>
+
+        <div class="links-grid">
+            <a href="#" class="elite-btn reveal">
+                <i class="fab fa-instagram"></i>
+                <span>Instagram Profile</span>
+            </a>
+            <a href="#" class="elite-btn reveal">
+                <i class="fab fa-telegram"></i>
+                <span>Telegram Channel</span>
+            </a>
+            <a href="#" class="elite-btn reveal">
+                <i class="fab fa-youtube"></i>
+                <span>YouTube Creator</span>
+            </a>
+            <a href="#" class="elite-btn reveal">
+                <i class="fab fa-tiktok"></i>
+                <span>TikTok Official</span>
+            </a>
+        </div>
+
+        <footer class="reveal">
+            <a href="https://instagram.com/shohcore12" class="shoh-tag" target="_blank">
+                DESIGNED BY <strong>SHOHJAHON MAHKAMOV</strong>
+            </a>
+        </footer>
+    </div>
+
+    <script>
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.transform = `translate(${e.clientX - 12}px, ${e.clientY - 12}px)`;
+        });
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('preloader');
+                const ui = document.getElementById('mainUI');
+                
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    ui.classList.add('active');
+                    document.body.style.overflowY = 'auto';
+                }, 1000);
+            }, 2000);
+        });
+
+        // Hover animatsiyasi
+        document.querySelectorAll('.elite-btn').forEach(btn => {
+            btn.addEventListener('mouseenter', () => cursor.style.transform += ' scale(2)');
+            btn.addEventListener('mouseleave', () => cursor.style.transform = cursor.style.transform.replace(' scale(2)', ''));
+        });
+    </script>
+</body>
+</html>
